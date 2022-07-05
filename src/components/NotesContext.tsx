@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useState } from "react";
+import { createContext, ReactNode, useEffect, useState } from "react";
 
 export interface Note {
   name: string;
@@ -22,22 +22,24 @@ export const NotesContext = createContext<NotesContextProps>(
 export function NotesContextProvider({
   children,
 }: NotesContextProviderProps): React.ReactElement {
-  // const [notes, setNotes] = useState<Note[]>([
-  //   { name: "Teste", description: "Teste description" },
-  // ]);
 
-  const [notes, setNotes] = useState<Note[]>([]);
+  
+  let notesArr = JSON.parse(localStorage.getItem("notes") || "[]");
+  const [notes, setNotes] = useState<Note[]>(notesArr);
 
   function addNote(note: Note) {
     setNotes((prev) => [...prev, note]);
+    localStorage.setItem("notes", JSON.stringify([...notesArr, note]));
   }
 
   function deleteNote(note: Note) {
     setNotes((prev) => prev.filter((n) => n !== note));
+    localStorage.setItem("notes", JSON.stringify(notesArr.filter((n: Note) => n !== note)));
   }
 
+
   return (
-    <NotesContext.Provider value={{ notes, addNote, deleteNote }}>
+    <NotesContext.Provider value={{ notes, addNote, deleteNote}}>
       {children}
     </NotesContext.Provider>
   );
